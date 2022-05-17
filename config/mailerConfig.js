@@ -7,11 +7,11 @@ const EMAIL = process.env.EMAIL;
 const { AWS_API_USER, AWS_API_PASS, AWS_API_HOST } = process.env;
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
+  host: AWS_API_HOST,
   port: 465,
   auth: {
-    user: GMAIL_USER,
-    pass: GMAIL_PASS,
+    user: AWS_API_USER,
+    pass: AWS_API_PASS,
   },
   tls: {
     rejectUnauthorized: false,

@@ -98,7 +98,7 @@ exports.verifyEmail = async (req, res) => {
 
     const response = new Response(true, 200, "User Verified Successfully");
 
-    res.redirect("http://www.geeksforgeeks.org");
+    res.redirect("https://applatch.com");
   } catch (err) {
     console.log(err);
     // redirect user to token invalid or expired page
