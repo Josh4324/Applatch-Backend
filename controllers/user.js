@@ -353,3 +353,23 @@ exports.updateProfile = async (req, res) => {
     res.status(response.code).json(response);
   }
 };
+
+exports.getProfileData = async (req, res) => {
+  try {
+    const { id } = req.payload;
+
+    const user = await userService.findUserWithId(id);
+
+    const response = new Response(true, 200, "Success", user);
+    res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    res.status(response.code).json(response);
+  }
+};

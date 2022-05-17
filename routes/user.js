@@ -30,6 +30,8 @@ router.post("/social/login", userController.socialLogin);
 
 router.post("/social/check", userController.socialCheck);
 
+router.get("/", token.verifyToken, userController.getProfileData);
+
 router.patch("/", token.verifyToken, userController.updateProfile);
 
 module.exports = router;
