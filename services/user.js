@@ -33,6 +33,18 @@ module.exports = class UserService {
     });
   }
 
+  async findUserAndPasswordWithId(id) {
+    return await User.findOne({
+      where: { id },
+      include: [
+        {
+          model: Social,
+          as: "social",
+        },
+      ],
+    });
+  }
+
   async createUser(user) {
     return await User.create(user);
   }

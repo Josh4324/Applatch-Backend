@@ -31,6 +31,37 @@ exports.loginValidationRules = () => {
   ];
 };
 
+exports.resetValidationRules = () => {
+  return [
+    body("oldPassword")
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        "i"
+      )
+      .withMessage(
+        "Password should be Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character"
+      ),
+    body("newPassword")
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        "i"
+      )
+      .withMessage(
+        "Password should be Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character"
+      ),
+  ];
+};
+
+exports.emailValidationRules = () => {
+  return [
+    body("email")
+      .notEmpty()
+      .isEmail()
+      .normalizeEmail()
+      .withMessage("Email is required"),
+  ];
+};
+
 exports.roleValidationRules = () => {
   return [
     body("role")

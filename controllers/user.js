@@ -3,9 +3,8 @@ const SocialService = require("../services/social");
 const MailService = require("../services/mail");
 const argon2 = require("argon2");
 const { Response, Token } = require("../helpers");
-const { JWT_SECRET } = process.env;
-const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
+const front = "https://applatch.com/";
 
 const userService = new UserService();
 const socialService = new SocialService();
@@ -219,6 +218,41 @@ exports.resendEmail = async (req, res) => {
   }
 };
 
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await userService.findUserWithEmail(email);
+
+    if (!user) {
+      const response = new Response(false, 401, "User does not exist");
+      return res.status(response.code).json(response);
+    }
+
+    const newToken = await token.generateToken(user.dataValues);
+
+    const userLink = `${front}/reset?code=${newToken}`;
+    const mail = await mailService.sendPasswordResetMail(
+      user.name,
+      email,
+      userLink
+    );
+
+    const response = new Response(true, 200, "Email sent to mail");
+    return res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    // redirect user to token invalid or expired page
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    res.status(response.code).json(response);
+  }
+};
+
 exports.socialSignUp = async (req, res) => {
   try {
     req.body.verify = true;
@@ -361,6 +395,40 @@ exports.getProfileData = async (req, res) => {
     const user = await userService.findUserWithId(id);
 
     const response = new Response(true, 200, "Success", user);
+    res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    res.status(response.code).json(response);
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+
+    const { id } = req.payload;
+
+    const realUser = await userService.findUserAndPasswordWithId(id);
+
+    const userPassword = realUser.password;
+    const checkPassword = await argon2.verify(userPassword, oldPassword);
+
+    if (!realUser || !checkPassword) {
+      const response = new Response(false, 401, "Incorrect email or password");
+      return res.status(response.code).json(response);
+    }
+
+    const password = await argon2.hash(newPassword);
+
+    const user = await userService.updateUser(id, { password });
+
+    const response = new Response(true, 200, "Password reset successful");
     res.status(response.code).json(response);
   } catch (err) {
     console.log(err);

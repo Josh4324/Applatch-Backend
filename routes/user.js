@@ -20,7 +20,19 @@ router.post(
   userController.logIn
 );
 
-router.post("/resend-email", userController.resendEmail);
+router.post(
+  "/forget-password",
+  validation.emailValidationRules(),
+  validation.validate,
+  userController.forgotPassword
+);
+
+router.post(
+  "/resend-email",
+  validation.emailValidationRules(),
+  validation.validate,
+  userController.resendEmail
+);
 
 router.get("/verify/:id/:token", userController.verifyEmail);
 
@@ -33,5 +45,13 @@ router.post("/social/check", userController.socialCheck);
 router.get("/", token.verifyToken, userController.getProfileData);
 
 router.patch("/", token.verifyToken, userController.updateProfile);
+
+router.patch(
+  "/reset-password",
+  token.verifyToken,
+  validation.resetValidationRules(),
+  validation.validate,
+  userController.resetPassword
+);
 
 module.exports = router;
