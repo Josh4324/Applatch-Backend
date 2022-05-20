@@ -356,14 +356,20 @@ exports.updateProfile = async (req, res) => {
   try {
     const { id } = req.payload;
 
+    console.log(id);
+
     const { social } = req.body;
+
+    console.log(social);
 
     const user = await userService.updateUser(id, req.body);
 
-    if (Object.keys(social).length > 0) {
-      console.log("updating");
-      console.log(id);
-      await socialService.updateSocial(id, social);
+    if (social) {
+      if (Object.keys(social).length > 0) {
+        console.log("updating");
+        console.log(id);
+        await socialService.updateSocial(id, social);
+      }
     }
 
     const userData = await userService.findUserWithEmail(req.body.email);
