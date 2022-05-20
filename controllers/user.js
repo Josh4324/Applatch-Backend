@@ -336,7 +336,7 @@ exports.socialCheck = async (req, res) => {
       const response = new Response(true, 200, "This user already exists", {});
       return res.status(response.code).json(response);
     } else {
-      const response = new Response(true, 200, "This user does not exists", {
+      const response = new Response(true, 400, "This user does not exists", {
         email,
       });
       return res.status(response.code).json(response);
