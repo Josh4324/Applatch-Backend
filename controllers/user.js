@@ -31,7 +31,7 @@ exports.signUp = async (req, res) => {
 
     req.body.password = password;
     req.body.role = "user";
-    req.body.verified = false;
+    req.body.verify = false;
     req.body.token = newToken;
     req.body.onboardStage = "1";
 
