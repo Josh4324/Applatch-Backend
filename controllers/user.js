@@ -356,11 +356,9 @@ exports.updateProfile = async (req, res) => {
   try {
     const { id } = req.payload;
 
-    console.log(id);
+    console.log("ID", id);
 
     const { social } = req.body;
-
-    console.log(social);
 
     const user = await userService.updateUser(id, req.body);
 
@@ -372,7 +370,7 @@ exports.updateProfile = async (req, res) => {
       }
     }
 
-    const userData = await userService.findUserWithEmail(req.body.email);
+    const userData = await userService.findUserWithId(id);
 
     const response = new Response(
       true,
