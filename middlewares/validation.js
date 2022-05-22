@@ -88,6 +88,21 @@ exports.resetPasswordValidationRules = () => {
   ];
 };
 
+exports.resetValidationRules = () => {
+  return [
+    body("password")
+      .notEmpty()
+      .trim()
+      .escape()
+      .withMessage("Please provide the old password"),
+    body("confirmPassword")
+      .notEmpty()
+      .trim()
+      .escape()
+      .withMessage("Please provide the new password"),
+  ];
+};
+
 exports.validate = (req, res, next) => {
   try {
     const errors = validationResult(req);

@@ -54,4 +54,12 @@ router.patch(
   userController.resetPassword
 );
 
+router.patch(
+  "/reset",
+  token.verifyToken,
+  validation.resetValidationRules(),
+  validation.validate,
+  userController.reset
+);
+
 module.exports = router;
