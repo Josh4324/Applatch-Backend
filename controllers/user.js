@@ -143,9 +143,9 @@ exports.logIn = async (req, res) => {
 
       // send verification mail
       await mailService.sendSignupEmail(
-        newUser.email,
+        user.email,
         verificationLink,
-        newUser.firstName
+        user.firstName
       );
     }
 
