@@ -502,7 +502,7 @@ exports.resetWithoutAuth = async (req, res) => {
 
     const pass = await argon2.hash(password);
 
-    await userService.updateUser(id, { password: pass });
+    await userService.updateUserWithEmail(email, { password: pass });
 
     const response = new Response(true, 200, "Password reset successful");
     res.status(response.code).json(response);
