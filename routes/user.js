@@ -62,4 +62,11 @@ router.patch(
   userController.reset
 );
 
+router.patch(
+  "/reset-noauth",
+  validation.resetNoauthValidationRules(),
+  validation.validate,
+  userController.resetWithoutAuth
+);
+
 module.exports = router;

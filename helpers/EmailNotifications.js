@@ -13,13 +13,13 @@ class EmailNotifications {
     const subject = "Password Recovery";
     const image = "";
     const emailBody = `
-        <h3 class="username">Hello ${firstName},</h3>
+        <h3 class="username">Dear User,</h3>
         <p class="message">
-          Click the link below to reset your password
+          Please find your password reset code below
         </p>
-        <a class="btn" href=${link}>
-          Reset password
-        </a>`;
+        <div>
+          ${link}
+        </div>`;
     const content = template(subject, emailBody, image);
     mailer.sendMail(email, subject, content);
   }

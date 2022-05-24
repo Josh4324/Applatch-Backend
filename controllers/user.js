@@ -43,7 +43,7 @@ exports.signUp = async (req, res) => {
       const social = await socialService.createSocial(socialBody);
     }
 
-    const verificationLink = `http://${req.headers.host}/api/v1/user/verify/${newUser.id}/${newToken}`;
+    const verificationLink = `https://${req.headers.host}/api/v1/user/verify/${newUser.id}/${newToken}`;
 
     // send verification mail
     const mail = await mailService.sendSignupEmail(
@@ -229,13 +229,14 @@ exports.forgotPassword = async (req, res) => {
       return res.status(response.code).json(response);
     }
 
-    const newToken = await token.generateToken(user.dataValues);
+    const code = uuidv4().slice(0, 6);
 
-    const userLink = `${front}/reset?code=${newToken}`;
+    await userService.updateUserWithEmail(email, { code });
+
     const mail = await mailService.sendPasswordResetMail(
       user.name,
       email,
-      userLink
+      code
     );
 
     const response = new Response(true, 200, "Email sent to mail");
@@ -464,6 +465,42 @@ exports.reset = async (req, res) => {
     const pass = await argon2.hash(password);
 
     const user = await userService.updateUser(id, { password: pass });
+
+    const response = new Response(true, 200, "Password reset successful");
+    res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    res.status(response.code).json(response);
+  }
+};
+
+exports.resetWithoutAuth = async (req, res) => {
+  try {
+    const { password, confirmPassword, code, email } = req.body;
+
+    const user = await userService.findUserWithEmail(email);
+
+    if (user.code !== code) {
+      const response = new Response(true, 400, "Invalid code");
+      return res.status(response.code).json(response);
+    }
+
+    if (password !== confirmPassword) {
+      const response = new Response(
+        false,
+        401,
+        "Password and confirmPassword to do match"
+      );
+      return res.status(response.code).json(response);
+    }
+
+    const pass = await argon2.hash(password);
 
     const response = new Response(true, 200, "Password reset successful");
     res.status(response.code).json(response);

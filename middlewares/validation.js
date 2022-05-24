@@ -103,6 +103,31 @@ exports.resetValidationRules = () => {
   ];
 };
 
+exports.resetNoauthValidationRules = () => {
+  return [
+    body("email")
+      .notEmpty()
+      .isEmail()
+      .normalizeEmail()
+      .withMessage("Email is required"),
+    body("password")
+      .notEmpty()
+      .trim()
+      .escape()
+      .withMessage("Please provide the old password"),
+    body("confirmPassword")
+      .notEmpty()
+      .trim()
+      .escape()
+      .withMessage("Please provide the new password"),
+    body("code")
+      .notEmpty()
+      .trim()
+      .escape()
+      .withMessage("Please provide the code"),
+  ];
+};
+
 exports.validate = (req, res, next) => {
   try {
     const errors = validationResult(req);

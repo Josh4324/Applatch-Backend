@@ -26,6 +26,9 @@ module.exports = {
       token: {
         type: Sequelize.STRING,
       },
+      code: {
+        type: Sequelize.STRING,
+      },
       verify: {
         type: Sequelize.BOOLEAN,
       },
