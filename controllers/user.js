@@ -5,6 +5,7 @@ const argon2 = require("argon2");
 const { Response, Token } = require("../helpers");
 const { v4: uuidv4 } = require("uuid");
 const front = "https://applatch.com/";
+const random = require("random");
 
 const userService = new UserService();
 const socialService = new SocialService();
@@ -229,7 +230,7 @@ exports.forgotPassword = async (req, res) => {
       return res.status(response.code).json(response);
     }
 
-    const code = uuidv4().slice(0, 6);
+    const code = random.int(1000, 9999);
 
     await userService.updateUserWithEmail(email, { code });
 
