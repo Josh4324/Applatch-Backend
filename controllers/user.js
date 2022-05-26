@@ -53,10 +53,17 @@ exports.signUp = async (req, res) => {
       newUser.firstName
     );
 
+    const payload1 = {
+      id: newUser.id,
+      role: newUser.role,
+    };
+
+    const Token = await token.generateToken(payload1);
+
     const data = {
       id: newUser.id,
       role: "user",
-      token: newToken,
+      token: Token,
       onboardStage: newUser.onboardStage,
     };
 
