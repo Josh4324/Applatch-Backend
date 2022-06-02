@@ -9,9 +9,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      User.hasOne(models.Social, {
+      User.hasMany(models.Addictive, {
         foreignKey: "userId",
-        as: "social",
+        as: "addictive",
       });
     }
   }
@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       token: DataTypes.STRING,
       code: DataTypes.STRING,
       verify: DataTypes.BOOLEAN,
+      partner_email_verify: DataTypes.BOOLEAN,
       onboardStage: DataTypes.STRING,
     },
     {

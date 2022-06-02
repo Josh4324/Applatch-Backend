@@ -1,5 +1,6 @@
 const UserService = require("../services/user");
 const SocialService = require("../services/social");
+const AddictiveService = require("../services/addictive");
 const MailService = require("../services/mail");
 const argon2 = require("argon2");
 const { Response, Token } = require("../helpers");
@@ -9,6 +10,7 @@ const random = require("random");
 
 const userService = new UserService();
 const socialService = new SocialService();
+const addictiveService = new AddictiveService();
 const mailService = new MailService();
 const token = new Token();
 
@@ -37,12 +39,6 @@ exports.signUp = async (req, res) => {
     req.body.onboardStage = "1";
 
     const newUser = await userService.createUser(req.body);
-    if (newUser) {
-      const socialBody = {
-        userId: newUser.id,
-      };
-      const social = await socialService.createSocial(socialBody);
-    }
 
     const verificationLink = `https://${req.headers.host}/api/v1/user/verify/${newUser.id}/${newToken}`;
 
@@ -60,11 +56,11 @@ exports.signUp = async (req, res) => {
 
     const Token = await token.generateToken(payload1);
 
+    const userData = await userService.findUserWithId(newUser.id);
+
     const data = {
-      id: newUser.id,
-      role: "user",
       token: Token,
-      onboardStage: newUser.onboardStage,
+      userData,
     };
 
     const response = new Response(true, 201, "User created successfully", data);
@@ -104,8 +100,7 @@ exports.verifyEmail = async (req, res) => {
     await userService.updateUser(id, updatePayload);
 
     const response = new Response(true, 200, "User Verified Successfully");
-
-    res.redirect("https://applatch.com");
+    res.status(response.code).json(response);
   } catch (err) {
     console.log(err);
     // redirect user to token invalid or expired page
@@ -164,11 +159,11 @@ exports.logIn = async (req, res) => {
 
     const newToken = await token.generateToken(payload);
 
+    const userData = await userService.findUserWithId(user.id);
+
     const data = {
-      id: user.id,
       token: newToken,
-      verified: user.verify,
-      onboardStage: user.onboardStage,
+      userData,
     };
 
     const response = new Response(
@@ -276,11 +271,11 @@ exports.socialSignUp = async (req, res) => {
 
     const newToken = await token.generateToken(payload);
 
+    const user = await userService.findUserWithId(userData.id);
+
     const data = {
-      id: userData.id,
-      role: "user",
       token: newToken,
-      onboardStage: userData.onboardStage,
+      user,
     };
 
     const response = new Response(true, 201, "User created successfully", data);
@@ -310,11 +305,11 @@ exports.socialLogin = async (req, res) => {
 
     const newToken = await token.generateToken(payload);
 
+    const userData = await userService.findUserWithId(user.id);
+
     const data = {
-      id: user.id,
       token: newToken,
-      verified: user.verify,
-      onboardStage: user.onboardStage,
+      userData,
     };
     const response = new Response(
       true,
@@ -365,17 +360,33 @@ exports.updateProfile = async (req, res) => {
   try {
     const { id } = req.payload;
 
-    console.log("ID", id);
-
     const { social } = req.body;
 
     const user = await userService.updateUser(id, req.body);
 
-    if (social) {
-      if (Object.keys(social).length > 0) {
-        console.log("updating");
-        console.log(id);
-        await socialService.updateSocial(id, social);
+    if (social || social?.length > 0) {
+      const allapps = await addictiveService.findAddictive(id);
+      console.log(allapps);
+
+      for (let i = 0; i < social.length; i++) {
+        if (
+          social[i].status === false &&
+          allapps.filter((item) => item.name === social[i].appName).length === 1
+        ) {
+          await addictiveService.deleteUserAppWithId(id, social[i].appName);
+        }
+
+        if (
+          social[i].status === true &&
+          allapps.filter((item) => item.name === social[i].appName).length === 0
+        ) {
+          await addictiveService.createAddictive({
+            name: social[i].appName,
+            userId: id,
+            packageName: social[i].packageName,
+            icon: social[i].icon,
+          });
+        }
       }
     }
 
@@ -516,6 +527,81 @@ exports.resetWithoutAuth = async (req, res) => {
     res.status(response.code).json(response);
   } catch (err) {
     console.log(err);
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    res.status(response.code).json(response);
+  }
+};
+
+exports.addAccountabilityPartner = async (req, res) => {
+  try {
+    const { id } = req.payload;
+
+    const { partner_email } = req.body;
+
+    const code = random.int(1000, 9999);
+
+    req.body.code = code;
+
+    const user = await userService.updateUser(id, req.body);
+
+    // send verification mail
+    const mail = await mailService.sendAccountabilityPartnerMail(
+      user.firstName,
+      partner_email,
+      code
+    );
+
+    const userData = await userService.findUserWithId(id);
+
+    const response = new Response(
+      true,
+      200,
+      "Partner Added successfully",
+      userData
+    );
+
+    res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    res.status(response.code).json(response);
+  }
+};
+
+exports.verifyAccountabilityPartner = async (req, res) => {
+  try {
+    const { id } = req.payload;
+
+    const { code } = req.body;
+
+    const user = await userService.findUserWithId(id);
+
+    if (user.code !== code) {
+      const response = new Response(true, 409, "Invalid code");
+      return res.status(response.code).json(response);
+    }
+
+    const updatePayload = {
+      partner_email_verify: true,
+    };
+
+    await userService.updateUser(id, updatePayload);
+
+    const response = new Response(true, 200, "Verification Successful");
+    res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    // redirect user to token invalid or expired page
     const response = new Response(
       false,
       500,

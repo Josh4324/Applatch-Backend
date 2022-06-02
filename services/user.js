@@ -1,6 +1,7 @@
 const User = require("../models/index")["User"];
 const { Op } = require("sequelize");
 const Social = require("../models/index")["Social"];
+const Addictive = require("../models/index")["Addictive"];
 
 module.exports = class UserService {
   async findUserWithEmail(email) {
@@ -11,8 +12,8 @@ module.exports = class UserService {
       },
       include: [
         {
-          model: Social,
-          as: "social",
+          model: Addictive,
+          as: "addictive",
         },
       ],
     });
@@ -21,13 +22,15 @@ module.exports = class UserService {
   async findUserWithId(id) {
     return await User.findOne({
       where: { id },
+
       attributes: {
         exclude: ["password"],
       },
       include: [
+        { all: true },
         {
-          model: Social,
-          as: "social",
+          model: Addictive,
+          as: "addictive",
         },
       ],
     });
@@ -38,8 +41,8 @@ module.exports = class UserService {
       where: { id },
       include: [
         {
-          model: Social,
-          as: "social",
+          model: Addictive,
+          as: "addictive",
         },
       ],
     });

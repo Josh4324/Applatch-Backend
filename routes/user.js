@@ -46,6 +46,18 @@ router.get("/", token.verifyToken, userController.getProfileData);
 
 router.patch("/", token.verifyToken, userController.updateProfile);
 
+router.post(
+  "/partner",
+  token.verifyToken,
+  userController.addAccountabilityPartner
+);
+
+router.patch(
+  "/partner/verify",
+  token.verifyToken,
+  userController.verifyAccountabilityPartner
+);
+
 router.patch(
   "/reset-password",
   token.verifyToken,

@@ -24,6 +24,21 @@ class EmailNotifications {
     mailer.sendMail(email, subject, content);
   }
 
+  static async sendAccountabilityPartnerMail(firstName, email, link) {
+    const subject = "Accountability Partner Code";
+    const image = "";
+    const emailBody = `
+        <h3 class="username">Dear Partner,</h3>
+        <p class="message">
+          Please find your accountability partner code below
+        </p>
+        <div>
+          ${link}
+        </div>`;
+    const content = template(subject, emailBody, image);
+    mailer.sendMail(email, subject, content);
+  }
+
   /**
    * @param {*} email
    * @param {*} code

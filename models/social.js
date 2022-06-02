@@ -9,10 +9,6 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Social.hasOne(models.User, {
-        foreignKey: "id",
-        as: "user",
-      });
     }
   }
   Social.init(

@@ -8,4 +8,12 @@ module.exports = class EmailService {
   async sendPasswordResetMail(firstName, email, link) {
     return EmailNotifications.sendPasswordResetMail(firstName, email, link);
   }
+
+  async sendAccountabilityPartnerMail(firstName, email, code) {
+    return EmailNotifications.sendAccountabilityPartnerMail(
+      firstName,
+      email,
+      code
+    );
+  }
 };
