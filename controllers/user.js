@@ -125,6 +125,11 @@ exports.logIn = async (req, res) => {
       return res.status(response.code).json(response);
     }
 
+    if (user.password === null) {
+      const response = new Response(false, 401, "Wrong login method");
+      return res.status(response.code).json(response);
+    }
+
     const userPassword = user.password;
     const checkPassword = await argon2.verify(userPassword, password);
 
@@ -198,6 +203,10 @@ exports.resendEmail = async (req, res) => {
     };
 
     const newToken = await token.generateToken(payload);
+
+    req.body.token = newToken;
+
+    await userService.updateUserWithEmail(email, req.body);
 
     const verificationLink = `http://${req.headers.host}/api/v1/user/verify/${user.id}/${newToken}`;
 
