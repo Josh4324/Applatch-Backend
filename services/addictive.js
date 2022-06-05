@@ -20,11 +20,11 @@ module.exports = class UserService {
     });
   }
 
-  async deleteUserAppWithId(userId, name) {
+  async deleteUserAppWithId(userId, packageName) {
     return await Addictive.destroy({
       where: {
         userId,
-        name,
+        packageName,
       },
     });
   }

@@ -378,14 +378,16 @@ exports.updateProfile = async (req, res) => {
       for (let i = 0; i < social.length; i++) {
         if (
           social[i].status === false &&
-          allapps.filter((item) => item.name === social[i].name).length === 1
+          allapps.filter((item) => item.packageName === social[i].packageName)
+            .length === 1
         ) {
-          await addictiveService.deleteUserAppWithId(id, social[i].name);
+          await addictiveService.deleteUserAppWithId(id, social[i].packageName);
         }
 
         if (
           social[i].status === true &&
-          allapps.filter((item) => item.name === social[i].name).length === 0
+          allapps.filter((item) => item.packageName === social[i].packageName)
+            .length === 0
         ) {
           await addictiveService.createAddictive({
             name: social[i].name,
