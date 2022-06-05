@@ -394,6 +394,7 @@ exports.updateProfile = async (req, res) => {
             userId: id,
             packageName: social[i].packageName,
             icon: social[i].icon,
+            status: true,
           });
         }
       }
