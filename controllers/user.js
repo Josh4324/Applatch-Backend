@@ -375,22 +375,20 @@ exports.updateProfile = async (req, res) => {
 
     if (social || social?.length > 0) {
       const allapps = await addictiveService.findAddictive(id);
-      console.log(allapps);
-
       for (let i = 0; i < social.length; i++) {
         if (
           social[i].status === false &&
-          allapps.filter((item) => item.name === social[i].appName).length === 1
+          allapps.filter((item) => item.name === social[i].name).length === 1
         ) {
-          await addictiveService.deleteUserAppWithId(id, social[i].appName);
+          await addictiveService.deleteUserAppWithId(id, social[i].name);
         }
 
         if (
           social[i].status === true &&
-          allapps.filter((item) => item.name === social[i].appName).length === 0
+          allapps.filter((item) => item.name === social[i].name).length === 0
         ) {
           await addictiveService.createAddictive({
-            name: social[i].appName,
+            name: social[i].name,
             userId: id,
             packageName: social[i].packageName,
             icon: social[i].icon,
