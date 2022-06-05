@@ -607,7 +607,14 @@ exports.verifyAccountabilityPartner = async (req, res) => {
 
     await userService.updateUser(id, updatePayload);
 
-    const response = new Response(true, 200, "Verification Successful");
+    const userData = await userService.findUserWithId(id);
+
+    const response = new Response(
+      true,
+      200,
+      "Verification Successful",
+      userData
+    );
     res.status(response.code).json(response);
   } catch (err) {
     console.log(err);
