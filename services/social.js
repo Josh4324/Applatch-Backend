@@ -1,7 +1,7 @@
 const Social = require("../models/index")["Social"];
 const { Op } = require("sequelize");
 
-module.exports = class UserService {
+module.exports = class SocailService {
   async findSocial(userId) {
     return await Social.findOne({
       where: { userId },

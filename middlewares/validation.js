@@ -128,6 +128,37 @@ exports.resetNoauthValidationRules = () => {
   ];
 };
 
+exports.lockValidationRules = () => {
+  return [body("duration").notEmpty().withMessage("Duration is required")];
+};
+
+exports.lockDailyValidationRules = () => {
+  return [
+    body("duration").notEmpty().withMessage("Duration is required"),
+    body("repeat").notEmpty().isBoolean().withMessage("Repeat is required"),
+    body("days").notEmpty().isArray().withMessage("Days is required"),
+  ];
+};
+
+exports.statusValidationRules = () => {
+  return [body("status").notEmpty().withMessage("Status is required")];
+};
+
+exports.lockVerifyValidationRules = () => {
+  return [
+    body("code").notEmpty().withMessage("Code is required"),
+    body("status").notEmpty().withMessage("Status is required"),
+  ];
+};
+
+exports.beneficiaryValidationRules = () => {
+  return [
+    body("name").notEmpty().withMessage("Code is required"),
+    body("image").notEmpty().withMessage("Image is required"),
+    body("desc").notEmpty().withMessage("Desc is required"),
+    body("status").notEmpty().withMessage("Status is required"),
+  ];
+};
 exports.validate = (req, res, next) => {
   try {
     const errors = validationResult(req);

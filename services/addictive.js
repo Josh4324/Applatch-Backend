@@ -1,7 +1,7 @@
 const Addictive = require("../models/index")["Addictive"];
 const { Op } = require("sequelize");
 
-module.exports = class UserService {
+module.exports = class LockService {
   async findAddictive(userId) {
     return await Addictive.findAll({
       where: { userId },
