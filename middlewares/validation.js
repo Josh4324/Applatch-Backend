@@ -159,6 +159,21 @@ exports.beneficiaryValidationRules = () => {
     body("status").notEmpty().withMessage("Status is required"),
   ];
 };
+
+exports.scheduleLockValidationRules = () => {
+  return [
+    body("name").notEmpty().withMessage("Name is required"),
+    body("repeat").notEmpty().isBoolean().withMessage("Repeat is required"),
+    body("social")
+      .notEmpty()
+      .isArray()
+      .withMessage("Addictive apps are required"),
+    body("days").notEmpty().isArray().withMessage("Days are required"),
+    body("start").notEmpty().withMessage("Start time is required"),
+    body("end").notEmpty().withMessage("End time is required"),
+  ];
+};
+
 exports.validate = (req, res, next) => {
   try {
     const errors = validationResult(req);

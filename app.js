@@ -7,6 +7,7 @@ const userRoutes = require("./routes/user.js");
 const lockRoutes = require("./routes/lock.js");
 const beneficiaryRoutes = require("./routes/beneficiary");
 const lockDailyRoutes = require("./routes/lockdaily");
+const scheduleLockRoutes = require("./routes/schedulelock");
 
 const port = process.env.PORT || 3000;
 
@@ -18,6 +19,7 @@ app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/lock", lockRoutes);
 app.use("/api/v1/lockdaily", lockDailyRoutes);
 app.use("/api/v1/beneficiary", beneficiaryRoutes);
+app.use("/api/v1/schedule", scheduleLockRoutes);
 
 app.get("/api", (req, res) => {
   const response = new Response(
