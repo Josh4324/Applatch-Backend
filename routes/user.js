@@ -61,8 +61,6 @@ router.patch(
 router.patch(
   "/reset-password",
   token.verifyToken,
-  validation.resetValidationRules(),
-  validation.validate,
   userController.resetPassword
 );
 
