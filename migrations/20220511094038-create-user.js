@@ -29,6 +29,13 @@ module.exports = {
       code: {
         type: Sequelize.STRING,
       },
+      referral_code: {
+        type: Sequelize.STRING,
+      },
+      referral_num: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
       verify: {
         type: Sequelize.BOOLEAN,
       },

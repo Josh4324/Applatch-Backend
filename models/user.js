@@ -24,6 +24,8 @@ module.exports = (sequelize, DataTypes) => {
       partner_email: DataTypes.STRING,
       token: DataTypes.STRING,
       code: DataTypes.STRING,
+      referral_code: DataTypes.STRING,
+      referral_num: DataTypes.INTEGER,
       verify: DataTypes.BOOLEAN,
       partner_email_verify: DataTypes.BOOLEAN,
       onboardStage: DataTypes.STRING,

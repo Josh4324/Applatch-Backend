@@ -9,8 +9,12 @@ module.exports = class LockDailyService {
       where: { userId },
       include: [
         {
-          model: LockDailyDays,
+          model: ScheduleLockDays,
           as: "days",
+        },
+        {
+          model: ScheduleLockApps,
+          as: "apps",
         },
       ],
     });

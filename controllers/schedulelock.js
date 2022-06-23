@@ -119,7 +119,7 @@ exports.updateScheduleLock = async (req, res) => {
 
     const lock = await scheduleLockService.findScheduleLockWithUserId(id);
 
-    if (status === "pause" || status === "end") {
+    if (status === "pause" || (status === "end" && lock !== null)) {
       const code = random.int(1000, 9999);
 
       req.body.code = code;
@@ -138,14 +138,14 @@ exports.updateScheduleLock = async (req, res) => {
       await scheduleLockService.updateScheduleLock(lock.id, { status });
     }
 
-    if (status === "ongoing") {
+    if (status === "ongoing" && lock !== null) {
       await scheduleLockService.updateScheduleLock(lock.id, {
         status,
         pause_verify: false,
       });
     }
 
-    if (status === "complete") {
+    if (status === "complete" && lock !== null) {
       await scheduleLockService.updateScheduleLock(lock.id, {
         status,
         end_verify: true,

@@ -19,6 +19,21 @@ module.exports = class UserService {
     });
   }
 
+  async findUserWithRef(referral_code) {
+    return await User.findOne({
+      where: { referral_code },
+      attributes: {
+        exclude: ["token"],
+      },
+      include: [
+        {
+          model: Addictive,
+          as: "addictive",
+        },
+      ],
+    });
+  }
+
   async findUserWithId(id) {
     return await User.findOne({
       where: { id },
@@ -33,6 +48,14 @@ module.exports = class UserService {
           as: "addictive",
         },
       ],
+    });
+  }
+
+  async findAllUsers() {
+    return await User.findAll({
+      attributes: {
+        exclude: ["password"],
+      },
     });
   }
 

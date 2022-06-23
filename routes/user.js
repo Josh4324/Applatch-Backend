@@ -3,6 +3,7 @@ const router = express.Router();
 const Token = require("../helpers/Token");
 const userController = require("../controllers/user");
 const validation = require("../middlewares/validation");
+const authorization = require("../middlewares/authorization");
 
 const token = new Token();
 
@@ -77,6 +78,49 @@ router.patch(
   validation.resetNoauthValidationRules(),
   validation.validate,
   userController.resetWithoutAuth
+);
+
+router.post(
+  "/admin/signup",
+  validation.signUpValidationRules(),
+  validation.validate,
+  token.verifyToken,
+  authorization.authorization("admin"),
+  userController.signUpAdmin
+);
+
+router.post(
+  "/admin/login",
+  validation.loginValidationRules(),
+  validation.validate,
+  userController.logInAdmin
+);
+
+router.get("/admin/users", token.verifyToken, userController.getAllUsers);
+router.get(
+  "/admin/users/month",
+  token.verifyToken,
+  userController.getUsersbyMonth
+);
+
+router.get("/admin/user/:id", token.verifyToken, userController.getUserData);
+
+router.get(
+  "/admin/lockhistory/:id",
+  token.verifyToken,
+  userController.getUserLockHistory
+);
+
+router.get(
+  "/admin/lockdailyhistory/:id",
+  token.verifyToken,
+  userController.getUserLockDailyHistory
+);
+
+router.get(
+  "/admin/schedulelockhistory/:id",
+  token.verifyToken,
+  userController.getUserScheduleHistory
 );
 
 module.exports = router;

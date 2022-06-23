@@ -1,5 +1,7 @@
 const UserService = require("../services/user");
-const SocialService = require("../services/social");
+const LockService = require("../services/lock");
+const LockDailyService = require("../services/lockdaily");
+const ScheduleLockService = require("../services/schedulelock");
 const AddictiveService = require("../services/addictive");
 const MailService = require("../services/mail");
 const argon2 = require("argon2");
@@ -7,23 +9,36 @@ const { Response, Token } = require("../helpers");
 const { v4: uuidv4 } = require("uuid");
 const front = "https://applatch.com/";
 const random = require("random");
+const _ = require("lodash");
 
 const userService = new UserService();
-const socialService = new SocialService();
+const lockService = new LockService();
+const lockDailyService = new LockDailyService();
+const scheduleDailyService = new ScheduleLockService();
 const addictiveService = new AddictiveService();
 const mailService = new MailService();
 const token = new Token();
 
 exports.signUp = async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email, referral_code } = req.body;
+    let refUser, refCount;
     const user = await userService.findUserWithEmail(email);
+
+    if (referral_code) {
+      refUser = await userService.findUserWithRef(referral_code);
+      if (refUser) {
+        refCount = refUser.referral_num + 1;
+      }
+    }
+
     if (user) {
       const response = new Response(true, 409, "This user already exists");
       return res.status(response.code).json(response);
     }
 
     const code = uuidv4().slice(0, 6);
+    const ref = uuidv4().slice(0, 6);
 
     const payload = {
       code,
@@ -37,6 +52,7 @@ exports.signUp = async (req, res) => {
     req.body.verify = false;
     req.body.token = newToken;
     req.body.onboardStage = "1";
+    req.body.referral_code = ref;
 
     const newUser = await userService.createUser(req.body);
 
@@ -63,7 +79,131 @@ exports.signUp = async (req, res) => {
       userData,
     };
 
+    if (refUser) {
+      await userService.updateUser(refUser.id, {
+        referral_num: refCount,
+      });
+    }
+
     const response = new Response(true, 201, "User created successfully", data);
+    return res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    return res.status(response.code).json(response);
+  }
+};
+
+exports.signUpAdmin = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await userService.findUserWithEmail(email);
+
+    if (user) {
+      const response = new Response(true, 409, "This user already exists");
+      return res.status(response.code).json(response);
+    }
+
+    const code = uuidv4().slice(0, 6);
+
+    const payload = {
+      code,
+    };
+
+    const newToken = await token.generateToken(payload);
+    const password = await argon2.hash(req.body.password);
+
+    req.body.password = password;
+    req.body.role = "admin";
+    req.body.verify = false;
+    req.body.token = newToken;
+    req.body.onboardStage = "1";
+
+    const newUser = await userService.createUser(req.body);
+
+    const payload1 = {
+      id: newUser.id,
+      role: newUser.role,
+    };
+
+    const Token = await token.generateToken(payload1);
+
+    const userData = await userService.findUserWithId(newUser.id);
+
+    const data = {
+      token: Token,
+      userData,
+    };
+
+    const response = new Response(true, 201, "User created successfully", data);
+    return res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    return res.status(response.code).json(response);
+  }
+};
+
+exports.logInAdmin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await userService.findUserWithEmail(email);
+
+    if (!user) {
+      const response = new Response(false, 401, "Incorrect email or password");
+      return res.status(response.code).json(response);
+    }
+
+    if (user.password === null) {
+      const response = new Response(false, 401, "Wrong login method");
+      return res.status(response.code).json(response);
+    }
+
+    const userPassword = user.password;
+    const checkPassword = await argon2.verify(userPassword, password);
+
+    if (!user || !checkPassword) {
+      const response = new Response(false, 401, "Incorrect email or password");
+      return res.status(response.code).json(response);
+    }
+
+    if (user.role !== "admin") {
+      const response = new Response(false, 401, "User is not an admin");
+      return res.status(response.code).json(response);
+    }
+
+    const payload = {
+      id: user.id,
+      role: user.role,
+    };
+
+    const newToken = await token.generateToken(payload);
+
+    const userData = await userService.findUserWithId(user.id);
+
+    const data = {
+      token: newToken,
+      userData,
+    };
+
+    const response = new Response(
+      true,
+      200,
+      "User logged in Successfully",
+      data
+    );
     return res.status(response.code).json(response);
   } catch (err) {
     console.log(err);
@@ -619,6 +759,148 @@ exports.verifyAccountabilityPartner = async (req, res) => {
   } catch (err) {
     console.log(err);
     // redirect user to token invalid or expired page
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    res.status(response.code).json(response);
+  }
+};
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await userService.findAllUsers();
+
+    const response = new Response(true, 200, "Success", users);
+    res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    res.status(response.code).json(response);
+  }
+};
+
+exports.getUsersbyMonth = async (req, res) => {
+  try {
+    const users = await userService.findAllUsers();
+
+    const months = [
+      "Jan",
+      "Feb",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    const data = {};
+    const MonthNum = [];
+
+    const result = _.groupBy(users, ({ createdAt }) =>
+      new Date(createdAt).getMonth()
+    );
+
+    Object.keys(result).map((item) => {
+      data[months[item]] = result[item].length;
+    });
+
+    const response = new Response(true, 200, "Success", data);
+    res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    res.status(response.code).json(response);
+  }
+};
+
+exports.getUserData = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const userData = await userService.findUserWithId(id);
+
+    const response = new Response(true, 200, "Success", userData);
+    res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    res.status(response.code).json(response);
+  }
+};
+
+exports.getUserLockHistory = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const history = await lockService.findLock(id);
+
+    const response = new Response(true, 200, "Success", history);
+    res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    res.status(response.code).json(response);
+  }
+};
+
+exports.getUserLockDailyHistory = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const history = await lockDailyService.findLockDaily(id);
+
+    const response = new Response(true, 200, "Success", history);
+    res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    res.status(response.code).json(response);
+  }
+};
+
+exports.getUserScheduleHistory = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const history = await scheduleDailyService.findScheduleLock(id);
+
+    const response = new Response(true, 200, "Success", history);
+    res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
     const response = new Response(
       false,
       500,
