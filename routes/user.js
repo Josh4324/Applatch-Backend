@@ -97,6 +97,12 @@ router.post(
 );
 
 router.get("/admin/users", token.verifyToken, userController.getAllUsers);
+
+router.get(
+  "/admin/users/stats",
+  token.verifyToken,
+  userController.getAllUsersStats
+);
 router.get(
   "/admin/users/month",
   token.verifyToken,

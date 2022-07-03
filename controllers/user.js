@@ -944,10 +944,48 @@ exports.getHistory = async (req, res) => {
       return a.createdAt - b.createdAt;
     });
 
-    //console.log(data);
-
     const response = new Response(true, 200, "Success", result);
 
+    res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    res.status(response.code).json(response);
+  }
+};
+
+exports.getAllUsersStats = async (req, res) => {
+  try {
+    const users = await userService.findAllUsers();
+
+    const newUsers = [];
+    const referralUsers = users;
+
+    users.map((item) => {
+      if (
+        new Date(item.dataValues.createdAt).getDate() === new Date().getDate()
+      ) {
+        newUsers.push(item);
+      }
+    });
+
+    referralUsers.sort((a, b) => {
+      return b.referral_num - a.referral_num;
+    });
+
+    const updatedUsers = users.slice(0, 10);
+
+    const data = {
+      newUsers,
+      topReferrals: referralUsers,
+    };
+
+    const response = new Response(true, 200, "Success", data);
     res.status(response.code).json(response);
   } catch (err) {
     console.log(err);
