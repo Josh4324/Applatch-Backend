@@ -123,4 +123,6 @@ router.get(
   userController.getUserScheduleHistory
 );
 
+router.get("/admin/history/:id", token.verifyToken, userController.getHistory);
+
 module.exports = router;

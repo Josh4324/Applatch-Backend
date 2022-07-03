@@ -910,3 +910,53 @@ exports.getUserScheduleHistory = async (req, res) => {
     res.status(response.code).json(response);
   }
 };
+
+exports.getHistory = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const history = await lockService.findLock(id);
+    const history1 = await lockDailyService.findLockDaily(id);
+    const history2 = await scheduleDailyService.findScheduleLock(id);
+
+    const lock = [];
+    const lockDaily = [];
+    const scheduleLock = [];
+
+    history.map((item) => {
+      item.dataValues.type = "Lock Now";
+      lock.push(item);
+    });
+
+    history1.map((item) => {
+      item.dataValues.type = "Lock By Daily Limit";
+      lockDaily.push(item);
+    });
+
+    history2.map((item) => {
+      item.dataValues.type = "Schedule Lock";
+      scheduleLock.push(item);
+    });
+
+    const data = [...lock, ...lockDaily, ...scheduleLock];
+
+    const result = data.sort(function (a, b) {
+      return a.createdAt - b.createdAt;
+    });
+
+    //console.log(data);
+
+    const response = new Response(true, 200, "Success", result);
+
+    res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    res.status(response.code).json(response);
+  }
+};
