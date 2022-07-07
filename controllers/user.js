@@ -22,13 +22,16 @@ const token = new Token();
 exports.signUp = async (req, res) => {
   try {
     const { email, referral_code } = req.body;
-    let refUser, refCount;
+    let refUser, refCount, refCurrent, current_amount, total_amount;
     const user = await userService.findUserWithEmail(email);
 
     if (referral_code) {
       refUser = await userService.findUserWithRef(referral_code);
       if (refUser) {
         refCount = refUser.referral_num + 1;
+        refCurrent = refUser.referral_current + 1;
+        current_amount = refUser.current_amount + 200;
+        total_amount = refUser.total_amount + 200;
       }
     }
 
@@ -82,6 +85,9 @@ exports.signUp = async (req, res) => {
     if (refUser) {
       await userService.updateUser(refUser.id, {
         referral_num: refCount,
+        referral_current: refCurrent,
+        current_amount,
+        total_amount,
       });
     }
 
@@ -941,7 +947,7 @@ exports.getHistory = async (req, res) => {
     const data = [...lock, ...lockDaily, ...scheduleLock];
 
     const result = data.sort(function (a, b) {
-      return a.createdAt - b.createdAt;
+      return b.createdAt - a.createdAt;
     });
 
     const response = new Response(true, 200, "Success", result);

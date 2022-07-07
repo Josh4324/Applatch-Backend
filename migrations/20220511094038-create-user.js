@@ -36,6 +36,18 @@ module.exports = {
         type: Sequelize.INTEGER,
         defaultValue: 0,
       },
+      referral_current: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
+      total_amount: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
+      current_amount: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
       verify: {
         type: Sequelize.BOOLEAN,
       },
