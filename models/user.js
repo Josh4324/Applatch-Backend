@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
       referral_current: DataTypes.INTEGER,
       current_amount: DataTypes.INTEGER,
       total_amount: DataTypes.INTEGER,
+      points: DataTypes.INTEGER,
       verify: DataTypes.BOOLEAN,
       partner_email_verify: DataTypes.BOOLEAN,
       onboardStage: DataTypes.STRING,

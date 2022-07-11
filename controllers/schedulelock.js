@@ -113,11 +113,14 @@ exports.createScheduleLock = async (req, res) => {
 
 exports.updateScheduleLock = async (req, res) => {
   try {
+    let updatedPoints;
     const { id } = req.payload;
 
     const { status } = req.body;
 
     const lock = await scheduleLockService.findScheduleLockWithUserId(id);
+    const userData = await userService.findUserWithId(id);
+    const points = userData.points;
 
     if (status === "pause" || (status === "end" && lock !== null)) {
       const code = random.int(1000, 9999);
@@ -135,7 +138,10 @@ exports.updateScheduleLock = async (req, res) => {
         code
       );
 
+      updatedPoints = points - 1;
+
       await scheduleLockService.updateScheduleLock(lock.id, { status });
+      await userService.updateUser(id, { points: updatedPoints });
     }
 
     if (status === "ongoing" && lock !== null) {
@@ -146,10 +152,15 @@ exports.updateScheduleLock = async (req, res) => {
     }
 
     if (status === "complete" && lock !== null) {
+      const lockStatus = lock.status;
       await scheduleLockService.updateScheduleLock(lock.id, {
         status,
         end_verify: true,
       });
+      if (lockStatus === "ongoing") {
+        updatedPoints = points + 1;
+        await userService.updateUser(id, { points: updatedPoints });
+      }
     }
 
     const lockData = await scheduleLockService.findScheduleLockWithUserId(id);

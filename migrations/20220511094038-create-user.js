@@ -48,6 +48,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         defaultValue: 0,
       },
+      points: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
       verify: {
         type: Sequelize.BOOLEAN,
       },
