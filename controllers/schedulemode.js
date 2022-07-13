@@ -153,7 +153,7 @@ exports.updateScheduleMode = async (req, res) => {
 
 exports.deleteScheduleMode = async (req, res) => {
   try {
-    const { lockModeId } = req.body;
+    let { lockModeId } = req.params;
 
     const modeApps = await scheduleModeAppsService.findApps(lockModeId);
     const modeDays = await scheduleModeDaysService.findDays(lockModeId);
@@ -170,7 +170,7 @@ exports.deleteScheduleMode = async (req, res) => {
 
     const response = new Response(
       true,
-      201,
+      200,
       "Schedule Mode deleted successfully",
       lock
     );

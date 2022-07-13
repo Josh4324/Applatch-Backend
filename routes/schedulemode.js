@@ -11,7 +11,7 @@ router.post("/", token.verifyToken, schedulemodeController.createScheduleMode);
 router.patch("/", token.verifyToken, schedulemodeController.updateScheduleMode);
 
 router.delete(
-  "/",
+  "/:lockModeId",
   token.verifyToken,
   schedulemodeController.deleteScheduleMode
 );
