@@ -416,6 +416,9 @@ exports.socialSignUp = async (req, res) => {
   try {
     req.body.verify = true;
     req.body.onboardStage = "1";
+    const ref = uuidv4().slice(0, 6);
+    req.body.referral_code = ref;
+
     const userData = await userService.createUser(req.body);
 
     const code = uuidv4().slice(0, 6);
