@@ -782,7 +782,21 @@ exports.verifyAccountabilityPartner = async (req, res) => {
 
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await userService.findAllUsers();
+    const page = req.query.page;
+
+    let users = await userService.findAllUsers();
+    let start;
+
+    if (page) {
+      if (Number(page) === 1) {
+        start = 0;
+      } else {
+        start = (page - 1) * 10;
+      }
+      const end = page * 10;
+      console.log(start, end);
+      users = users.slice(start, end);
+    }
 
     const response = new Response(true, 200, "Success", users);
     res.status(response.code).json(response);
@@ -972,10 +986,13 @@ exports.getHistory = async (req, res) => {
 
 exports.getAllUsersStats = async (req, res) => {
   try {
-    const users = await userService.findAllUsers();
+    const page = req.query.page;
 
-    const newUsers = [];
-    const referralUsers = users;
+    let users = await userService.findAllUsers();
+    let start;
+
+    let newUsers = [];
+    let referralUsers = users;
 
     users.map((item) => {
       if (
@@ -990,6 +1007,17 @@ exports.getAllUsersStats = async (req, res) => {
     });
 
     const updatedUsers = users.slice(0, 10);
+    if (page) {
+      if (Number(page) === 1) {
+        start = 0;
+      } else {
+        start = (page - 1) * 10;
+      }
+      const end = page * 10;
+      console.log(start, end);
+      newUsers = newUsers.slice(start, end);
+      referralUsers = referralUsers.slice(start, end);
+    }
 
     const data = {
       newUsers,
