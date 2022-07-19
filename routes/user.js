@@ -129,6 +129,18 @@ router.get(
   userController.getUserScheduleHistory
 );
 
+router.get(
+  "/admin/schedulemodehistory/:id",
+  token.verifyToken,
+  userController.getUserScheduleModeHistory
+);
+
+router.get(
+  "/admin/schedulemode/:id",
+  token.verifyToken,
+  userController.getUserScheduleMode
+);
+
 router.get("/admin/history/:id", token.verifyToken, userController.getHistory);
 
 module.exports = router;

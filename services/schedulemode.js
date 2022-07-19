@@ -20,10 +20,10 @@ module.exports = class LockDailyService {
     });
   }
 
-  async findScheduleModeWithId(id) {
+  async findScheduleModeWithId(userId) {
     return await ScheduleMode.findOne({
       where: {
-        id,
+        userId,
       },
       include: [
         {

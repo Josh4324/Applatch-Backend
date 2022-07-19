@@ -2,6 +2,7 @@ const UserService = require("../services/user");
 const LockService = require("../services/lock");
 const LockDailyService = require("../services/lockdaily");
 const ScheduleLockService = require("../services/schedulelock");
+const ScheduleModeService = require("../services/schedulemode");
 const AddictiveService = require("../services/addictive");
 const MailService = require("../services/mail");
 const argon2 = require("argon2");
@@ -15,6 +16,7 @@ const userService = new UserService();
 const lockService = new LockService();
 const lockDailyService = new LockDailyService();
 const scheduleDailyService = new ScheduleLockService();
+const scheduleModeService = new ScheduleModeService();
 const addictiveService = new AddictiveService();
 const mailService = new MailService();
 const token = new Token();
@@ -995,6 +997,46 @@ exports.getAllUsersStats = async (req, res) => {
     };
 
     const response = new Response(true, 200, "Success", data);
+    res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    res.status(response.code).json(response);
+  }
+};
+
+exports.getUserScheduleModeHistory = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const history = await scheduleModeService.findScheduleMode(id);
+
+    const response = new Response(true, 200, "Success", history);
+    res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    res.status(response.code).json(response);
+  }
+};
+
+exports.getUserScheduleMode = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const history = await scheduleModeService.findScheduleModeWithId(id);
+
+    const response = new Response(true, 200, "Success", history);
     res.status(response.code).json(response);
   } catch (err) {
     console.log(err);
