@@ -70,7 +70,7 @@ exports.updateScheduleMode = async (req, res) => {
     const { id } = req.payload;
     let { lockModeId } = req.params;
 
-    const { lockModeId, social, days } = req.body;
+    const { social, days } = req.body;
 
     const lock = await scheduleModeService.findScheduleModeWithId(lockModeId);
 
