@@ -8,7 +8,11 @@ const token = new Token();
 
 router.post("/", token.verifyToken, schedulemodeController.createScheduleMode);
 
-router.patch("/", token.verifyToken, schedulemodeController.updateScheduleMode);
+router.patch(
+  "/:lockModeId",
+  token.verifyToken,
+  schedulemodeController.updateScheduleMode
+);
 
 router.delete(
   "/:lockModeId",

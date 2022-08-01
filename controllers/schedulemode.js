@@ -68,6 +68,7 @@ exports.createScheduleMode = async (req, res) => {
 exports.updateScheduleMode = async (req, res) => {
   try {
     const { id } = req.payload;
+    let { lockModeId } = req.params;
 
     const { lockModeId, social, days } = req.body;
 
