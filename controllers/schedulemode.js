@@ -110,7 +110,7 @@ exports.updateScheduleMode = async (req, res) => {
           days[i].status === false &&
           alldays.filter((item) => item.day === days[i].day).length === 1
         ) {
-          await scheduleModeDaysService.deleteDay(lock.id, days[i].day);
+          await scheduleModeDaysService.deleteDay(lockModeId, days[i].day);
         }
 
         if (
